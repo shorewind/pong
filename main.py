@@ -1,7 +1,8 @@
 # Simple Pong in Python 3 for Beginners
-# By @TokyoEdTech
+# Tutorial by Christian Thompson @TokyoEdTech
 
 import turtle
+import winsound
 
 # creating window
 wn = turtle.Screen()
@@ -89,9 +90,11 @@ while True:
 
     # border checking
     if ball.ycor() > 290:
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
         ball.sety(280)
         ball.dy *= -1  # reverses direction
     if ball.ycor() < -290:
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
         ball.sety(-290)
         ball.dy *= -1  # reverses direction
     if ball.xcor() > 390:
@@ -109,8 +112,10 @@ while True:
 
     # paddle and ball collisions
     if (ball.xcor() > 340 and ball.xcor() < 350) and (ball.ycor() < paddle_b.ycor() + 40) and (ball.ycor() > paddle_b.ycor() - 40):
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
         ball.setx(340)
         ball.dx *= -1
     if (ball.xcor() < -340 and ball.xcor() > -350) and (ball.ycor() < paddle_a.ycor() + 40) and (ball.ycor() > paddle_a.ycor() - 40):
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
         ball.setx(-340)
         ball.dx *= -1
