@@ -1,8 +1,8 @@
 # Simple Pong in Python 3 for Beginners
 # Tutorial by Christian Thompson @TokyoEdTech
-
 import turtle
 import winsound
+import time
 
 # creating window
 wn = turtle.Screen()
@@ -11,7 +11,7 @@ wn.bgcolor("black")
 wn.setup(width=800, height=600)
 wn.tracer(0)
 
-# paddle A
+# paddle a
 paddle_a = turtle.Turtle()
 paddle_a.speed(0)
 paddle_a.shape("square")
@@ -20,7 +20,7 @@ paddle_a.shapesize(stretch_wid=5, stretch_len=1)
 paddle_a.penup()
 paddle_a.goto(-350,0)
 
-# paddle B
+# paddle b
 paddle_b = turtle.Turtle()
 paddle_b.speed(0)
 paddle_b.shape("square")
@@ -40,8 +40,8 @@ ball.shape("square")
 ball.color("white")
 ball.penup()
 ball.goto(0, 0)
-ball.dx = 0.1  # may have to change values based on computer speed
-ball.dy = 0.1
+ball.dx = 3
+ball.dy = 1
 
 # scorecard pen
 pen = turtle.Turtle()
@@ -52,7 +52,7 @@ pen.hideturtle()
 pen.goto(0, 260)
 pen.write("Player A: 0  Player B: 0", align="center", font=("Courier", 24, "normal"))
 
-# function
+# functions
 def paddle_a_up():
     y = paddle_a.ycor()
     y += 20
@@ -82,6 +82,7 @@ wn.onkeypress(paddle_b_down, "Down")
 
 # main game loop
 while True:
+    time.sleep(0.01)
     wn.update()
 
     # move the ball
@@ -90,11 +91,11 @@ while True:
 
     # border checking
     if ball.ycor() > 290:
-        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+        # winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
         ball.sety(280)
         ball.dy *= -1  # reverses direction
     if ball.ycor() < -290:
-        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+        # winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
         ball.sety(-290)
         ball.dy *= -1  # reverses direction
     if ball.xcor() > 390:
@@ -112,10 +113,10 @@ while True:
 
     # paddle and ball collisions
     if (ball.xcor() > 340 and ball.xcor() < 350) and (ball.ycor() < paddle_b.ycor() + 40) and (ball.ycor() > paddle_b.ycor() - 40):
-        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+        # winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
         ball.setx(340)
         ball.dx *= -1
     if (ball.xcor() < -340 and ball.xcor() > -350) and (ball.ycor() < paddle_a.ycor() + 40) and (ball.ycor() > paddle_a.ycor() - 40):
-        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+        # winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
         ball.setx(-340)
         ball.dx *= -1
