@@ -16,7 +16,9 @@ PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
 BALL_RADIUS = 7
 
 SCORE_FONT = pygame.font.SysFont("Robotica", 50)
-WINNING_SCORE = 10
+WINNING_SCORE = 5
+
+bounceSound = pygame.mixer.Sound('bounce.wav')
 
 
 class Paddle():
@@ -91,13 +93,16 @@ def draw(win, paddles, ball, left_score, right_score):
 
 def handle_collision(ball, left_paddle, right_paddle):
     if ball.y + ball.radius >= HEIGHT:
+        bounceSound.play()
         ball.y_vel *= -1
     elif ball.y - ball.radius <= 0:
+        bounceSound.play()
         ball.y_vel *= -1
 
     if ball.x_vel < 0:
         if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
             if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
+                bounceSound.play()
                 ball.x_vel *= -1
 
                 middle_y = left_paddle.y + left_paddle.height/2
@@ -108,6 +113,7 @@ def handle_collision(ball, left_paddle, right_paddle):
     else:
         if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.height:
             if ball.x + ball.radius >= right_paddle.x:
+                bounceSound.play()
                 ball.x_vel *= -1
 
                 middle_y = right_paddle.y + right_paddle.height/2
