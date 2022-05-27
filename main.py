@@ -1,5 +1,3 @@
-# Pong with Python
-# Tutorial by Tech with Tim
 import pygame
 pygame.init()
 
@@ -43,7 +41,6 @@ class Paddle():
     def reset(self):
         self.x = self.original_x
         self.y = self.original_y
-
 
 
 class Ball:
@@ -91,7 +88,7 @@ def draw(win, paddles, ball, left_score, right_score):
     pygame.display.update()
 
 
-def handle_collision(ball, left_paddle, right_paddle):
+def handle_collision(ball, left_paddle, right_paddle, accel, max_speed):
     if ball.y + ball.radius >= HEIGHT:
         bounceSound.play()
         ball.y_vel *= -1
@@ -110,6 +107,10 @@ def handle_collision(ball, left_paddle, right_paddle):
                 reduction_factor = (left_paddle.height/2)/ball.MAX_VEL
                 y_vel = difference_in_y / reduction_factor
                 ball.y_vel = -1*y_vel
+
+                if abs(ball.x_vel) <= max_speed:
+                    ball.x_vel += accel
+
     else:
         if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.height:
             if ball.x + ball.radius >= right_paddle.x:
@@ -121,6 +122,9 @@ def handle_collision(ball, left_paddle, right_paddle):
                 reduction_factor = (right_paddle.height/2)/ball.MAX_VEL
                 y_vel = difference_in_y / reduction_factor
                 ball.y_vel = -1*y_vel
+
+                if abs(ball.x_vel) <= max_speed:
+                    ball.x_vel -= accel
 
 
 def handle_paddle_movement(keys, left_paddle, right_paddle):
@@ -134,7 +138,6 @@ def handle_paddle_movement(keys, left_paddle, right_paddle):
     if keys[pygame.K_DOWN] and right_paddle.y + right_paddle.height + right_paddle.VEL <= HEIGHT:
         right_paddle.move(up=False)
 
-
 def main():
     run = True
     clock = pygame.time.Clock()
@@ -143,11 +146,15 @@ def main():
     right_paddle = Paddle(WIDTH - 10 - PADDLE_WIDTH, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
     ball = Ball(WIDTH//2, HEIGHT//2, BALL_RADIUS)
 
+    accel = 0.25
+    max_speed = 15
+
     left_score = 0
     right_score = 0
 
     while run:
         clock.tick(FPS)
+
         draw(WIN, [left_paddle, right_paddle], ball, left_score, right_score)
 
         for event in pygame.event.get():
@@ -159,14 +166,19 @@ def main():
         handle_paddle_movement(keys, left_paddle, right_paddle)
 
         ball.move()
-        handle_collision(ball, left_paddle, right_paddle)
+        handle_collision(ball, left_paddle, right_paddle, accel, max_speed)
         
         if ball.x < 0:
             right_score += 1
             ball.reset()
+            right_paddle.reset()
+            left_paddle.reset()
         elif ball.x > WIDTH:
             left_score += 1
             ball.reset()
+            right_paddle.reset()
+            left_paddle.reset()
+
         
         won = False
         if left_score >= WINNING_SCORE:
