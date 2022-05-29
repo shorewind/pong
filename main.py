@@ -1,22 +1,29 @@
+from re import X
 import pygame
 pygame.init()
 
 WIDTH, HEIGHT = 700, 500
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pong by @shorewind")
+pygame.display.set_caption("Pong")
 
 FPS = 60
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+GREY = (200, 200, 200)
 
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
 BALL_RADIUS = 7
 
-SCORE_FONT = pygame.font.SysFont("Robotica", 50)
 WINNING_SCORE = 5
 
 bounceSound = pygame.mixer.Sound('bounce.wav')
+
+
+def game_text(text, size, color):
+    game_font = pygame.font.Font("pressStart2P.ttf", size)
+    message = game_font.render(text, 1, color)
+    return message
 
 
 class Paddle():
@@ -43,7 +50,7 @@ class Paddle():
         self.y = self.original_y
 
 
-class Ball:
+class Ball():
     MAX_VEL = 5
     COLOR = WHITE
 
@@ -68,11 +75,38 @@ class Ball:
         self.x_vel *= -1
 
 
+class Button():
+    global button_width, button_height
+    button_width = 150
+    button_height = 100
+
+    def __init__(self, text, x, y, color):
+        self.text = text
+        self.x = x
+        self.y = y
+        self.color = color
+        self.width = button_width
+        self.height = button_height
+
+    def draw(self, win):
+        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
+        text = game_text(self.text, 10, BLACK)
+        win.blit(text, (self.x + round(button_width/2) - round(text.get_width()/2), self.y + round(button_height/2) -round(text.get_height()/2)))
+
+    def hover(self, pos):
+        x1 = pos[0]
+        y1 = pos[1]
+        if self.x <= x1 <= self.x + self.width and self.y <= y1 <= self.y + self.height:
+            return True
+        else:
+            return False
+
+
 def draw(win, paddles, ball, left_score, right_score):
     win.fill(BLACK)
 
-    left_score_text = SCORE_FONT.render(f"{left_score}", 1, WHITE)
-    right_score_text = SCORE_FONT.render(f"{right_score}", 1, WHITE)
+    left_score_text = game_text(f"{left_score}", 40, WHITE)
+    right_score_text = game_text(f"{right_score}", 40, WHITE)
     win.blit(left_score_text, (WIDTH//4 - left_score_text.get_width()//2, 20))
     win.blit(right_score_text, (3*WIDTH//4 - right_score_text.get_width()//2, 20))
 
@@ -138,7 +172,8 @@ def handle_paddle_movement(keys, left_paddle, right_paddle):
     if keys[pygame.K_DOWN] and right_paddle.y + right_paddle.height + right_paddle.VEL <= HEIGHT:
         right_paddle.move(up=False)
 
-def main():
+
+def local_multiplayer():
     run = True
     clock = pygame.time.Clock()
 
@@ -190,7 +225,7 @@ def main():
 
 
         if won:
-            text = SCORE_FONT.render(win_text, 1, WHITE)
+            text = game_text(win_text, 25, WHITE)
             WIN.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2 - text.get_height()//2))
             pygame.display.update()
             pygame.time.delay(5000)
@@ -200,8 +235,67 @@ def main():
             left_score = 0
             right_score = 0
 
+
+def online_multiplayer():
+    pass
+
+
+def single_player():
+    pass
+
+
+buttons = [Button("Local Co-Op", WIDTH/3 - button_width, HEIGHT/2 + button_height, WHITE), Button("Online", WIDTH/2 - button_width/2, HEIGHT/2 + button_height, WHITE), Button("Single Player", 2 * WIDTH/3, HEIGHT/2 + button_height, WHITE)]
+
+
+def main_menu():
+    run = True
+    while run:
+        WIN.fill(BLACK)
+
+        text = game_text("Main Menu", 50, WHITE)
+        WIN.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//10))
+
+        mini_ball = Ball(WIDTH/2, HEIGHT/2 - 40, 5)
+        mini_ball.draw(WIN)
+
+        mini_paddle_width = 10
+        mini_paddle_length = 50
+        mini_paddle_left = Paddle(WIDTH/2 - 100, HEIGHT/2 - mini_paddle_length/2 - 40, mini_paddle_width, mini_paddle_length)
+        mini_paddle_left.draw(WIN)
+
+        mini_paddle_right = Paddle(WIDTH/2 + 100, HEIGHT/2 - mini_paddle_length/2 - 40, mini_paddle_width, mini_paddle_length)
+        mini_paddle_right.draw(WIN)
+
+        for button in buttons:
+            button.draw(WIN)
+            pos = pygame.mouse.get_pos()
+
+            if button.hover(pos) == True:
+                button.color = GREY
+                # pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+            else:
+                button.color = WHITE
+                # pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if buttons[0].hover(pos) == True:
+                    local_multiplayer()
+                if buttons[1].hover(pos) == True:
+                    online_multiplayer()
+                if buttons[2].hover(pos) == True:
+                    single_player()
+
     pygame.quit()
 
-
-if __name__ == '__main__':
-    main()
+main_menu()
