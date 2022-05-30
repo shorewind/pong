@@ -1,4 +1,3 @@
-from re import X
 import pygame
 pygame.init()
 
@@ -272,10 +271,13 @@ def main_menu():
 
             if button.hover(pos) == True:
                 button.color = GREY
-                # pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
             else:
                 button.color = WHITE
-                # pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+            
+        if any(button.hover(pos) for button in buttons):
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+        else:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
         pygame.display.update()
 
