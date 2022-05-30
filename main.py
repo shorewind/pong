@@ -50,14 +50,14 @@ class Paddle():
 
 
 class Ball():
-    MAX_VEL = 5
+    INIT_VEL = 5
     COLOR = WHITE
 
     def __init__(self, x, y, radius):
         self.x = self.original_x = x
         self.y = self.original_y = y
         self.radius = radius
-        self.x_vel = self.MAX_VEL
+        self.x_vel = self.INIT_VEL
         self.y_vel = 0
 
     def draw(self, win):
@@ -137,7 +137,7 @@ def handle_collision(ball, left_paddle, right_paddle, accel, max_speed):
 
                 middle_y = left_paddle.y + left_paddle.height/2
                 difference_in_y = middle_y - ball.y
-                reduction_factor = (left_paddle.height/2)/ball.MAX_VEL
+                reduction_factor = (left_paddle.height/2)/ball.INIT_VEL
                 y_vel = difference_in_y / reduction_factor
                 ball.y_vel = -1*y_vel
 
@@ -152,7 +152,7 @@ def handle_collision(ball, left_paddle, right_paddle, accel, max_speed):
 
                 middle_y = right_paddle.y + right_paddle.height/2
                 difference_in_y = middle_y - ball.y
-                reduction_factor = (right_paddle.height/2)/ball.MAX_VEL
+                reduction_factor = (right_paddle.height/2)/ball.INIT_VEL
                 y_vel = difference_in_y / reduction_factor
                 ball.y_vel = -1*y_vel
 
@@ -236,14 +236,67 @@ def local_multiplayer():
 
 
 def online_multiplayer():
-    pass
+    run = True
+    clock = pygame.time.Clock()
+
+    while run:
+        clock.tick(FPS)
+        WIN.fill(BLACK)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                break
+
+        temp_text = game_text("Online multiplayer mode is in development", 15, WHITE)
+        WIN.blit(temp_text, (WIDTH/2 - temp_text.get_width()/2, HEIGHT/2 - temp_text.get_height()/2))
+
+        pygame.display.update()
 
 
 def single_player():
-    pass
+    run = True
+    clock = pygame.time.Clock()
+
+    left_paddle = Paddle(10, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+    wall = Paddle(WIDTH - 5, 0, 5, HEIGHT)
+    ball = Ball(WIDTH//2, HEIGHT//2, BALL_RADIUS)
+
+    ball.y_vel = 0.5
+    accel = 0.25
+    max_speed = 15
+
+    hits_text = "Hits:"
+    hits = 0
+
+    while run:
+        clock.tick(FPS)
+
+        draw(WIN, [left_paddle, wall], ball, hits_text, hits)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                break
+
+        keys = pygame.key.get_pressed()
+        handle_paddle_movement(keys, left_paddle, wall)
+
+        ball.move()
+        handle_collision(ball, left_paddle, wall, accel, max_speed)
+
+        if ball.x < 0:
+            ball.reset()
+            left_paddle.reset()
+            hits = 0
+            ball.x_vel = Ball.INIT_VEL
+            ball.y_vel = 0.5
+        elif ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
+            if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
+                hits += 1
 
 
-buttons = [Button("Local Co-Op", WIDTH/3 - button_width, HEIGHT/2 + button_height, WHITE), Button("Online", WIDTH/2 - button_width/2, HEIGHT/2 + button_height, WHITE), Button("Single Player", 2 * WIDTH/3, HEIGHT/2 + button_height, WHITE)]
+buttons = [Button("Local Co-Op", WIDTH/3 - button_width, HEIGHT/2 + button_height, WHITE), Button("Online", WIDTH/2 - button_width/2, HEIGHT/2 + button_height, WHITE), Button("Practice Mode", 2 * WIDTH/3, HEIGHT/2 + button_height, WHITE)]
 
 
 def main_menu():
